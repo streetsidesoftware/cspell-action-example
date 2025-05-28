@@ -2,3 +2,4 @@
 
 ignorePaths:
   - fixtures
+  - .git/hooks
