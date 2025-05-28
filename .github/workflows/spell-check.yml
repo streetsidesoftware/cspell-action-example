@@ -133,7 +133,7 @@ jobs:
           files: |
             fixtures/**
           config: ./fixtures/cspell.json
-          strict: false
+          strict: false # used to ignore the issues.
           inline: none
       - name: Show Results
         uses: streetsidesoftware/actions/public/summary@v1
