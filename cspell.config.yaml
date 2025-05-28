@@ -1,5 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json
 
+
 ignorePaths:
   - fixtures
-  - .git/hooks
+  - .git/!{COMMIT_EDITMSG,EDITMSG}
+
+dictionaries:
+  - git
