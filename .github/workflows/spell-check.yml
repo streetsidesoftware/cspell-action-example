@@ -150,12 +150,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: streetsidesoftware/cspell-action@v6
         id: cspell-action
+        continue-on-error: true # prevent the action from failing.
         with:
           incremental_files_only: false
           files: |
             fixtures/**
           config: ./fixtures/cspell-missing-import.yaml
-          strict: false # used to ignore the issues.
+          strict: false # used to ignore the spelling issues.
           inline: none
       - name: Check Failure
         if: ${{ steps.cspell-action.outputs.errors != '1' }}
