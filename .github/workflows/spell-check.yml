@@ -111,6 +111,7 @@ jobs:
           files: |
             **
             .*/**
+            !.git
           verbose: true
       - name: Show Results
         uses: streetsidesoftware/actions/public/summary@v1
