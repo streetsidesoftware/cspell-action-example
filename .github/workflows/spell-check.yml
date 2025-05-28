@@ -107,6 +107,7 @@ jobs:
         id: cspell-action
         with:
           incremental_files_only: false
+          config: ./cspell.config.yaml
           files: |
             **
             .*/**
