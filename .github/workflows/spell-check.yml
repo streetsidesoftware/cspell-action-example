@@ -1,0 +1,176 @@
+name: "Spell Check"
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-spelling-with-defaults:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: streetsidesoftware/cspell-action@v6
+        id: cspell-action
+        env:
+          TEST: true
+
+      - name: Show Results
+        uses: streetsidesoftware/actions/public/summary@v1
+        with:
+          text: |
+            outputs:
+            ``````json
+            ${{ toJSON(steps.cspell-action.outputs) }}
+            ``````
+
+            Commits Ids:
+            ```
+            ${{ toJSON(github.event.commits.*.id  || 'undefined') }}
+            ```
+
+  check-spelling-example-incremental:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: streetsidesoftware/cspell-action@v6
+        id: cspell-action
+        with:
+          check_dot_files: true
+          suggestions: true
+          incremental_files_only: true
+          inline: warning
+          treat_flagged_words_as_errors: false
+          strict: true
+          verbose: false
+          use_cspell_files: false
+      - name: Show Results
+        uses: streetsidesoftware/actions/public/summary@v1
+        with:
+          text: |
+            outputs:
+            ``````json
+            ${{ toJSON(steps.cspell-action.outputs) }}
+            ``````
+
+  check-action-with-file: # run the action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: streetsidesoftware/cspell-action@v6
+        id: cspell-action
+        env:
+          TEST: true
+        with:
+          files: |
+            **/*.ts
+            **/*.md
+      - name: Show Results
+        uses: streetsidesoftware/actions/public/summary@v1
+        with:
+          text: |
+            outputs:
+            ``````json
+            ${{ toJSON(steps.cspell-action.outputs) }}
+            ``````
+
+  check-action-no-increment: # run the action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: streetsidesoftware/cspell-action@v6
+        id: cspell-action
+        env:
+          TEST: true
+        with:
+          incremental_files_only: false
+          files: |
+            .
+      - name: Show Results
+        uses: streetsidesoftware/actions/public/summary@v1
+        with:
+          text: |
+            outputs:
+            ``````json
+            ${{ toJSON(steps.cspell-action.outputs) }}
+            ``````
+
+  check-action-no-increment-verbose: # run the action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: streetsidesoftware/cspell-action@v6
+        id: cspell-action
+        with:
+          incremental_files_only: false
+          config: ./cspell.config.yaml
+          files: |
+            **
+            .*/**
+            !.git
+          verbose: true
+      - name: Show Results
+        uses: streetsidesoftware/actions/public/summary@v1
+        with:
+          text: |
+            outputs:
+            ``````json
+            ${{ toJSON(steps.cspell-action.outputs) }}
+            ``````
+
+  check-action-files-with-issues: # run the action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: streetsidesoftware/cspell-action@v6
+        id: cspell-action
+        with:
+          incremental_files_only: false
+          files: |
+            fixtures/**
+          config: ./fixtures/cspell.json
+          strict: false # used to ignore the issues.
+          inline: none
+      - name: Show Results
+        uses: streetsidesoftware/actions/public/summary@v1
+        with:
+          text: |
+            outputs:
+            ``````json
+            ${{ toJSON(steps.cspell-action.outputs) }}
+            ``````
+
+  check-bad-config: # run the action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: streetsidesoftware/cspell-action@v6
+        id: cspell-action
+        continue-on-error: true
+        with:
+          incremental_files_only: false
+          files: |
+            fixtures/**
+          config: ./fixtures/cspell-missing-import.yaml
+          strict: false
+          inline: none
+      - name: Check Failure
+        if: ${{ steps.cspell-action.outputs.errors != '1' }}
+        run: exit 1
+      - name: Show Results
+        if: ${{ !cancelled() }}
+        uses: streetsidesoftware/actions/public/summary@v1
+        with:
+          text: |
+            outputs:
+            ``````json
+            ${{ toJSON(steps.cspell-action.outputs) }}
+            ``````
+            conclusion:
+            ``````json
+            ${{ toJSON(steps.cspell-action.conclusion) }}
+            ``````
